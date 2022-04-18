@@ -1,0 +1,39 @@
+config:
+  vcam:
+    trim_y: 300
+    trim_x: 1000
+    frame_id: camera
+
+vrobo:
+  xyz: [0,0,0]
+  rpy: [0,0,0]
+
+config_tf:
+  base:
+    parent_frame_id: world  #In stead of URDF
+  flange:
+    parent_frame_id: tool0_controller
+  pallet:
+    parent_frame_id: world
+    transform:
+      rotation:
+        w: 0
+        x: 0
+        y: 0
+        z: 1
+      translation:
+        x: 800
+        y: 0
+        z: 0
+  camera:
+    transform:
+      rotation:
+        w: 0
+        x: 0
+        y: 0
+        z: 1
+      translation:
+        x: 0
+        y: 0
+        z: 0
+

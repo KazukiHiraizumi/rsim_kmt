@@ -1,0 +1,5 @@
+<launch>
+  <node pkg="rtk_tools" type="panel.py" name="" args="
+    conf:=$(find rsim_kmt)/setup.zui dump:=$(find rsim_kmt)/recipe/param.yaml"
+  />
+</launch>
