@@ -31,7 +31,7 @@ pub_wp=rospy.Publisher("/vscene/floats",numpy_msg(Floats),queue_size=1)
 rospy.Subscriber("/request/redraw",Bool,cb_redraw)
 rospy.on_shutdown(cleanup_node)
 
-Tf = transformations.translation_matrix((0,0,200))
+Tf = transformations.translation_matrix((0,0,0))
 thispath=subprocess.getoutput("rospack find rsim_kmt")
 pcd=o3d.io.read_point_cloud(thispath+'/model/ring.ply')
 pcd=pcd.transform(Tf)

@@ -7,6 +7,13 @@ config:
 vrobo:
   xyz: [0,0,0]
   rpy: [0,0,0]
+  uf: uf0
+
+picker:
+  fitness:
+    min: 0
+  azimuth:
+    max: 0
 
 config_tf:
   base:
@@ -17,10 +24,10 @@ config_tf:
     parent_frame_id: world
     transform:
       rotation:
-        w: 0
+        w: 1
         x: 0
         y: 0
-        z: 1
+        z: 0
       translation:
         x: 800
         y: 0
@@ -28,12 +35,28 @@ config_tf:
   camera:
     transform:
       rotation:
-        w: 0
+        w: 1
         x: 0
         y: 0
-        z: 1
+        z: 0
       translation:
         x: 0
         y: 0
         z: 0
+  uf0:
+    parent_frame_id: base
+  uf1:                       #as move master
+    parent_frame_id: base
+    transform:
+      rotation:
+        w: 1
+        x: 0
+        y: 0
+        z: 0
+      translation:
+        x: 800
+        y: 0
+        z: 0
+  uf2:                       #as VT
+    parent_frame_id: base
 

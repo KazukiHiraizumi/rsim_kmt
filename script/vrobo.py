@@ -18,20 +18,35 @@ Param={
   "xyz":[0,0,0],
   "rpy":[0,0,0],
   "path1":{
-    "xyz":[0,0,0],
-    "rpy":[0,90,0],
-    "dz":800
+    "ip":"mov_z",
+    "xyz":[-1000,0,1400],
+    "rpy":[0,120,0],
+    "var":[-400,-800],
+    "pause":3
   },
   "path2":{
-    "xyz":[-200,0,800],
+    "ip":"rot_z",
+    "xyz":[-1000,0,600],
     "rpy":[0,120,0],
-    "angle":360
+    "var":[90],
+    "pause":3
   },
   "path3":{
-    "xyz":[-200,0,800],
+    "ip":"rot_z",
+    "xyz":[-200,0,600],
     "rpy":[0,120,0],
-    "angle":[0,270,135]
+    "var":[0,360],
+    "pitch":3.6,
+    "pause":0.1
   },
+  "path4":{
+    "ip":"rot_z",
+    "xyz":[-200,0,600],
+    "rpy":[0,120,0],
+    "var":[90,180,315],
+    "pause":3
+  },
+  "uf":"uf0"
 }
 Config={
   "target_frame_id":"tool0_controller",
@@ -46,20 +61,17 @@ def getRT(base,ref):
     RT=None
   return RT
 
-def mov(pos,relative=False):
-  print("vrobo move",pos)
+def mov(pos):
+  print("vrobo move",pos,Param["uf"])
   rot=R.from_euler('xyz',pos[3:6],degrees=True)
-  Rt=np.eye(4)
-  Rt[:3,:3]=rot.as_matrix()
-  Rt[:3,3]=np.array(pos[:3]).T
-  if relative:
-    Ro=getRT("base",Config["target_frame_id"])
-    Rt=Rt.dot(Ro)
+  Tm=np.eye(4)
+  Tm[:3,:3]=rot.as_matrix()
+  Tm[:3,3]=np.array(pos[:3]).T
+  bTu=getRT("base",Param["uf"])
   tf=TransformStamped()
   tf.header.stamp=rospy.Time.now()
-  tf.header.frame_id="base"
   tf.child_frame_id=Config["target_frame_id"]
-  tf.transform=tflib.fromRT(Rt)
+  tf.transform=tflib.fromRT(bTu.dot(Tm))
   pub_tf.publish(tf);
 
 def setbase(pos):
@@ -76,6 +88,7 @@ def setbase(pos):
 
 
 def cb_mov(msg):
+  global Param
   try:
     Param.update(rospy.get_param("~param"))
   except Exception as e:
@@ -83,65 +96,88 @@ def cb_mov(msg):
   mov(Param["xyz"]+Param["rpy"])
 
 def cb_base(msg):
+  global Param
   try:
     Param.update(rospy.get_param("~param"))
   except Exception as e:
     print("get_param exception:",e.args)
   setbase(Param["xyz"]+Param["rpy"])
 
-def cb_path1(msg):
-  try:
-    Param.update(rospy.get_param("~param"))
-  except Exception as e:
-    print("get_param exception:",e.args)
-  prm=Param["path1"]
+def mov_z(prm):
   mov(prm["xyz"]+prm["rpy"])
-  rospy.sleep(0.5)
-  wTc=getRT("base",Config["target_frame_id"])
-  for z in np.arange(0,prm["dz"],30):
+  rospy.sleep(prm["pause"])
+  wTc=getRT(Param["uf"],Config["target_frame_id"])
+  if "pitch" in prm: vars=np.arange(prm["var"][0],prm["var"][1],prm["pitch"])
+  else: vars=prm["var"]
+  for z in vars:
     rt=np.eye(4)
     rt[2,3]=z
     wTcc=rt.dot(wTc)
     euler=R.from_matrix(wTcc[:3,:3]).as_euler('xyz',degrees=True)
     mov([wTcc[0,3],wTcc[1,3],wTcc[2,3],euler[0],euler[1],euler[2]])
-    rospy.sleep(0.5)
+    rospy.sleep(prm["pause"])
   pub_inpos.publish(mTrue)
 
+def rot_z(prm):
+  mov(prm["xyz"]+prm["rpy"])
+  rospy.sleep(prm["pause"])
+  wTc=getRT(Param["uf"],Config["target_frame_id"])
+  if "pitch" in prm: vars=np.arange(prm["var"][0],prm["var"][1],prm["pitch"])
+  else: vars=prm["var"]
+  for rz in vars:
+    rt=np.eye(4)
+    rt[:3,:3]=R.from_euler('z',rz,degrees=True).as_matrix()
+    wTcc=rt.dot(wTc)
+    euler=R.from_matrix(wTcc[:3,:3]).as_euler('xyz',degrees=True)
+    mov([wTcc[0,3],wTcc[1,3],wTcc[2,3],euler[0],euler[1],euler[2]])
+    rospy.sleep(prm["pause"])
+  pub_inpos.publish(mTrue)
+
+def cb_path1(msg):
+  global Param,sub_path1
+  sub_path1.unregister()
+  print("**************************************cb_path1")
+  try:
+    Param.update(rospy.get_param("~param"))
+  except Exception as e:
+    print("get_param exception:",e.args)
+  prm=Param["path1"]
+  exec(prm["ip"]+"(prm)")
+  sub_path1=rospy.Subscriber("/vrobo/path1",Bool,cb_path1)
+
 def cb_path2(msg):
+  global Param,sub_path2
+  sub_path2.unregister()
   try:
     Param.update(rospy.get_param("~param"))
   except Exception as e:
     print("get_param exception:",e.args)
   prm=Param["path2"]
-  mov(prm["xyz"]+prm["rpy"])
-  rospy.sleep(0.5)
-  bTc=getRT("base",Config["target_frame_id"])
-  for rz in np.arange(0,prm["angle"],10):
-    rt=np.eye(4)
-    rt[:3,:3]=R.from_euler('Z',rz,degrees=True).as_matrix()
-    bTcc=rt.dot(bTc)
-    euler=R.from_matrix(bTcc[:3,:3]).as_euler('xyz',degrees=True)
-    mov([bTcc[0,3],bTcc[1,3],bTcc[2,3],euler[0],euler[1],euler[2]])
-    rospy.sleep(0.5)
-  pub_inpos.publish(mTrue)
+  exec(prm["ip"]+"(prm)")
+  sub_path2=rospy.Subscriber("/vrobo/path2",Bool,cb_path2)
 
 def cb_path3(msg):
+  global Param,sub_path3
+  sub_path3.unregister()
   try:
     Param.update(rospy.get_param("~param"))
   except Exception as e:
     print("get_param exception:",e.args)
   prm=Param["path3"]
-  mov(prm["xyz"]+prm["rpy"])
-  rospy.sleep(0.5)
-  bTc=getRT("base",Config["target_frame_id"])
-  for rz in prm["angle"]:
-    rt=np.eye(4)
-    rt[:3,:3]=R.from_euler('Z',rz,degrees=True).as_matrix()
-    bTcc=rt.dot(bTc)
-    euler=R.from_matrix(bTcc[:3,:3]).as_euler('xyz',degrees=True)
-    mov([bTcc[0,3],bTcc[1,3],bTcc[2,3],euler[0],euler[1],euler[2]])
-    rospy.sleep(3)
-  pub_inpos.publish(mTrue)
+  exec(prm["ip"]+"(prm)")
+  sub_path3=rospy.Subscriber("/vrobo/path3",Bool,cb_path3)
+
+def cb_path4(msg):
+  global Param,sub_path4
+  sub_path4.unregister()
+  try:
+    Param.update(rospy.get_param("~param"))
+  except Exception as e:
+    print("get_param exception:",e.args)
+  prm=Param["path4"]
+  exec(prm["ip"]+"(prm)")
+  sub_path4=rospy.Subscriber("/vrobo/path4",Bool,cb_path4)
+
 
 ########################################################
 rospy.init_node("vrobo",anonymous=True)
@@ -153,9 +189,10 @@ except Exception as e:
   print("get_param exception:",e.args)
 ###Topics
 rospy.Subscriber("/vrobo/mov",Bool,cb_mov)
-rospy.Subscriber("/vrobo/path1",Bool,cb_path1)
-rospy.Subscriber("/vrobo/path2",Bool,cb_path2)
-rospy.Subscriber("/vrobo/path3",Bool,cb_path3)
+sub_path1=rospy.Subscriber("/vrobo/path1",Bool,cb_path1)
+sub_path2=rospy.Subscriber("/vrobo/path2",Bool,cb_path2)
+sub_path3=rospy.Subscriber("/vrobo/path3",Bool,cb_path3)
+sub_path4=rospy.Subscriber("/vrobo/path4",Bool,cb_path4)
 rospy.Subscriber("/vrobo/setbase",Bool,cb_base)
 pub_inpos=rospy.Publisher("/vrobo/inpos",Bool,queue_size=1);
 pub_tf=rospy.Publisher("/update/config_tf",TransformStamped,queue_size=1);
