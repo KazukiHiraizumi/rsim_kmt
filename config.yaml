@@ -3,6 +3,10 @@ config:
     trim_y: 300
     trim_x: 1000
     frame_id: camera
+  prepro:
+    capture_frame_id: camera/capture0
+  vrobo:
+    target_frame_id: tool0_controller
 
 vrobo:
   xyz: [0,0,0]

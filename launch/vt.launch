@@ -1,40 +1,28 @@
 <launch>
   <arg name="ws" default="$(find rsim_kmt)" />
-<!--  <rosparam command="load" file="$(arg ws)/recipe/param.yaml" />
-  <rosparam command="load" file="$(arg ws)/rcalib.yaml" />
-  <node pkg="rovi_utils" type="cropper.py" name="surface_cropper" output="screen">
-    <remap from="~config" to="/config/cropper" />
-    <remap from="~param" to="/cropper" />
-    <remap from="~update" to="/update/cropper" />
-    <remap from="~capture" to="/request/capture" />
-    <remap from="~captured" to="/prepro/do1" />
-    <remap from="~clear" to="/request/clear" />
-    <remap from="~redraw" to="/request/redraw" />
-    <remap from="~in/floats" to="/rovi/ps_floats" />
-    <remap from="~out/floats" to="/surface/cropped/floats" />
-    <remap from="~raw/floats" to="/scene/surface/raw/floats" />
-  </node>
-  <node pkg="rovi_csp" type="prepro3.py" name="" output="screen">
-    <remap from="~config" to="/config/prepro" />
-    <remap from="~param" to="/prepro" />
-    <remap from="~in/floats" to="/surface/cropped/floats" />
-    <remap from="~out/floats" to="/scene/surface/floats" />
-    <remap from="~do1" to="/prepro/do1" />
+  <rosparam command="load" file="$(arg ws)/recipe/param.yaml" />
+<!-- <rosparam command="load" file="$(arg ws)/rcalib.yaml" /> -->
+  <node pkg="rsim_kmt" type="searcher2d.py" name="" output="screen">
+    <remap from="~config" to="/config/sercher2d" />
+    <remap from="~param" to="/searcher2d" />
+    <remap from="~image_in" to="/rovi/left/image_rect" />
+    <remap from="~do1" to="/request/capture" />
     <remap from="~do2" to="/request/solve" />
     <remap from="~done1" to="/response/capture" />
-    <remap from="~done2" to="/searcher/solve" />
+    <remap from="~done2" to="/response/solve" />
+    <remap from="~thru1" to="/searcher2d/thru1" />
+    <remap from="~thru2" to="/searcher2d/thru2" />
   </node>
--->
   <node pkg="rovi_utils" type="cropper.py" name="surface_cropper" output="screen">
     <remap from="~config" to="/config/cropper" />
     <remap from="~param" to="/cropper" />
     <remap from="~update" to="/update/cropper" />
-    <remap from="~capture" to="/request/capture" />
+    <remap from="~capture" to="/searcher2d/thru1" />
     <remap from="~captured" to="/response/capture" />
     <remap from="~clear" to="/request/clear" />
     <remap from="~redraw" to="/request/redraw" />
     <remap from="~in/floats" to="/rovi/ps_floats" />
-    <remap from="~out/floats" to="/scene/surface/floats" />
+    <remap from="~out/floats" to="/surface/cropped/floats" />
     <remap from="~raw/floats" to="/scene/surface/raw/floats" />
   </node>
  <node pkg="rovi_utils" type="searcher.py" name="searcher0" args="path:=$(find rovi_visual_teach)/recipe" output="screen">
@@ -47,7 +35,7 @@
     <remap from="~loaded" to="/response/recipe_load" />
     <remap from="~save" to="/request/model_save" />
     <remap from="~saved" to="/response/model_save" />
-    <remap from="~solve" to="/request/solve" />
+    <remap from="~solve" to="/searcher2d/thru2" />
     <remap from="~solved" to="/searcher/solved" />
     <remap from="~redraw" to="/request/redraw" />
     <remap from="~score" to="/searcher/score" />

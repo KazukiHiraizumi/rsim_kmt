@@ -41,5 +41,5 @@ markers = rviz_tools.RvizMarkers('pallet', 'vscene_marker')
 
 while not rospy.is_shutdown():
   scale = Vector3(1,1,1)
-  markers.publishMesh(Tf, mesh_file, 'brown', scale, 0.5)
+  markers.publishMesh(Tf, mesh_file, 'yellow', scale, 0.5)
   rospy.Rate(5).sleep() #1 Hz

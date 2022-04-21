@@ -1,9 +1,9 @@
 config:
   dashboard:
 #    load: rovi_visual_teach/rc.d/ur.yaml
-#    recipe:
-#      link: rsim_kmt/recipe
-#      dir: rsim_kmt/recipe.d
+    recipe:
+      link: rsim_kmt/recipe
+      dir: rsim_kmt/recipe.d
     altitude: '+0'
     message:
       halt: "を停止します"
@@ -30,7 +30,7 @@ config:
       label: "VT"
       package: rsim_kmt
       file: vt.launch
-#      auto: 5
+      auto: 5
     launch_setup:
       label: "セットアップ"
       package: rsim_kmt

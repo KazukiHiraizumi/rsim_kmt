@@ -1,6 +1,6 @@
 # RSIM_KMT
 
-## 起動方法
+## 準備
 ### PLYデータの準備
 ~~~
 cd model
@@ -8,7 +8,26 @@ cd model
 ~~~
 ring.plyが作成される
 
-### launch
+### バーチャルカメラ
+
+~~~
+git clone https://github.com/lucasw/rviz_camera_stream.git
+~~~
+
+### 照明
+
+~~~
+git clone https://github.com/mogumbo/rviz_lighting
+~~~
+
+### Rviz設定  
+ファイルmain.rvizにカメラ、照明の設定が追加されているので、viewer.launchを起動するだけで バーチャルカメラが有効になります。設定の変更はDisplayパネルにて行います。  
+参考にしたURL  
+- https://roboticsknowledgebase.com/wiki/tools/stream-rviz/
+
+
+
+## 起動
 ~~~
 roslaunch rsim_ktm start.launch
 ~~~
