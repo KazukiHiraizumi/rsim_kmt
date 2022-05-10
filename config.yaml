@@ -24,7 +24,7 @@ config_tf:
     parent_frame_id: world  #In stead of URDF
   flange:
     parent_frame_id: tool0_controller
-  pallet:
+  marud:
     parent_frame_id: world
     transform:
       rotation:
@@ -34,6 +34,18 @@ config_tf:
         z: 0
       translation:
         x: 800
+        y: 0
+        z: 0
+  tatep:
+    parent_frame_id: world
+    transform:
+      rotation:
+        w: 1
+        x: 0
+        y: 0
+        z: 0
+      translation:
+        x: -500
         y: 0
         z: 0
   camera:
@@ -49,7 +61,7 @@ config_tf:
         z: 0
   uf0:
     parent_frame_id: base
-  uf1:                       #as move master
+  uf1:                       #maru do
     parent_frame_id: base
     transform:
       rotation:
@@ -61,6 +73,18 @@ config_tf:
         x: 800
         y: 0
         z: 0
-  uf2:                       #as VT
+  uf2:                       #tate plate
+    parent_frame_id: base
+    transform:
+      rotation:
+        w: 1
+        x: 0
+        y: 0
+        z: 0
+      translation:
+        x: -500
+        y: 0
+        z: 0
+  uf9:                       #as VT
     parent_frame_id: base
 
