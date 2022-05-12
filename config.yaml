@@ -36,18 +36,6 @@ config_tf:
         x: 800
         y: 0
         z: 0
-  tatep:
-    parent_frame_id: world
-    transform:
-      rotation:
-        w: 1
-        x: 0
-        y: 0
-        z: 0
-      translation:
-        x: -500
-        y: 0
-        z: 0
   camera:
     transform:
       rotation:
@@ -82,7 +70,7 @@ config_tf:
         y: 0
         z: 0
       translation:
-        x: -500
+        x: -100
         y: 0
         z: 0
   uf9:                       #as VT
