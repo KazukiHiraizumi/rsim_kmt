@@ -6,7 +6,7 @@
 cd model
 ./stl2ply.py
 ~~~
-ring.plyが作成される
+STLから、丸胴と立板の.plyが作成される。
 
 ### バーチャルカメラ
 
@@ -26,7 +26,7 @@ git clone https://github.com/mogumbo/rviz_lighting
 - https://roboticsknowledgebase.com/wiki/tools/stream-rviz/
 
 
-
+world
 ## 起動
 ~~~
 roslaunch rsim_ktm start.launch
@@ -34,14 +34,23 @@ roslaunch rsim_ktm start.launch
 または起動アイコンで起動
 
 
-## vrobo  
-vroboはcameraを移動させる仮想ロボットです。
-### TF
+## TF
 |TF名|親TF|用途|
 |:----|:----|:----|
 |base|world|ロボットの基準座標系|
+|marud|world|丸胴の設置位置の座標系|
 |tool0_controller|base|ロボットの機械エンド(フランジ)|
 |uf0|base|ユーザ座標系0はbaseと同じにします|
-|uf1|base|ユーザ座標系1はマスターワークの設置座標系に合わせ、マスターの作成の際に用います|
-|uf2|base|ユーザ座標系2はVTで用います|
+|uf1|base|ユーザ座標系1は、丸胴の設置位置に合わせています|
+|uf2|base||
+|uf9|base|VTで使う|
+
+## プログラム
+|名前|用途|
+|:----|:----|
+|vscene.py|3Dシーンを作成する|
+|vrobo.py|カメラを設定された軌道に従って移動します|
+|vcam.py|点群カメラをシミュレートします|
+|searcher2d.py|2D画像処理|
+|????????|軸拘束ICP|
 
