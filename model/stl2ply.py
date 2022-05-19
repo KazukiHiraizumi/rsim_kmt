@@ -11,5 +11,6 @@ def samp(name,res):
   pcdd=pcd.voxel_down_sample(voxel_size=res)
   o3d.io.write_point_cloud(name+".ply",pcdd)
 
-samp('marud',3)
-samp('tatep',3)
+samp('marud',2)
+samp('tatep',2)
+samp('circle',2)

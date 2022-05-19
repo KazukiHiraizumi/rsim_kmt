@@ -19,21 +19,21 @@ Param={
   "rpy":[0,0,0],
   "path1":{
     "ip":"mov_z",
-    "xyz":[-1000,0,1400],
+    "xyz":[-100,0,1400],
     "rpy":[0,120,0],
-    "var":[-400,-800],
+    "var":[0,-400,-800],
     "pause":3
   },
   "path2":{
     "ip":"rot_z",
-    "xyz":[-1000,0,600],
+    "xyz":[-100,0,600],
     "rpy":[0,120,0],
-    "var":[90],
+    "var":[-45,45],
     "pause":3
   },
   "path3":{
     "ip":"rot_z",
-    "xyz":[0,0,600],
+    "xyz":[-100,0,600],
     "rpy":[0,120,0],
     "var":[0,360],
     "pitch":3.6,
@@ -43,7 +43,14 @@ Param={
     "ip":"rot_z",
     "xyz":[-200,0,600],
     "rpy":[0,120,0],
-    "var":[180],
+    "var":[90],
+    "pause":1
+  },
+  "path5":{
+    "ip":"rot_z",
+    "xyz":[-500,0,1000],
+    "rpy":[0,180,90],
+    "var":[90],
     "pause":1
   },
   "uf":"uf0"
@@ -105,10 +112,11 @@ def cb_base(msg):
 
 def mov_z(prm):
   mov(prm["xyz"]+prm["rpy"])
-  rospy.sleep(prm["pause"])
+  rospy.sleep(0.01)
   wTc=getRT(Param["uf"],Config["target_frame_id"])
   if "pitch" in prm: vars=np.arange(prm["var"][0],prm["var"][1],prm["pitch"])
   else: vars=prm["var"]
+  print("vars",vars)
   for z in vars:
     rt=np.eye(4)
     rt[2,3]=z
@@ -120,7 +128,7 @@ def mov_z(prm):
 
 def rot_z(prm):
   mov(prm["xyz"]+prm["rpy"])
-  rospy.sleep(prm["pause"])
+  rospy.sleep(0.01)
   wTc=getRT(Param["uf"],Config["target_frame_id"])
   if "pitch" in prm: vars=np.arange(prm["var"][0],prm["var"][1],prm["pitch"])
   else: vars=prm["var"]
@@ -133,50 +141,27 @@ def rot_z(prm):
     rospy.sleep(prm["pause"])
   pub_inpos.publish(mTrue)
 
+def path_exec(path):
+  global Param
+  exec("sub_"+path+".unregister()")
+  try:
+    Param.update(rospy.get_param("~param"))
+  except Exception as e:
+    print("get_param exception:",e.args)
+  prm=Param[path]
+  exec(prm["ip"]+"(prm)")
+  exec("global sub_"+path+"; sub_"+path+"=rospy.Subscriber('/vrobo/"+path+"',Bool,cb_"+path+")")
+
 def cb_path1(msg):
-  global Param,sub_path1
-  sub_path1.unregister()
-  print("**************************************cb_path1")
-  try:
-    Param.update(rospy.get_param("~param"))
-  except Exception as e:
-    print("get_param exception:",e.args)
-  prm=Param["path1"]
-  exec(prm["ip"]+"(prm)")
-  sub_path1=rospy.Subscriber("/vrobo/path1",Bool,cb_path1)
-
+  path_exec("path1")
 def cb_path2(msg):
-  global Param,sub_path2
-  sub_path2.unregister()
-  try:
-    Param.update(rospy.get_param("~param"))
-  except Exception as e:
-    print("get_param exception:",e.args)
-  prm=Param["path2"]
-  exec(prm["ip"]+"(prm)")
-  sub_path2=rospy.Subscriber("/vrobo/path2",Bool,cb_path2)
-
+  path_exec("path2")
 def cb_path3(msg):
-  global Param,sub_path3
-  sub_path3.unregister()
-  try:
-    Param.update(rospy.get_param("~param"))
-  except Exception as e:
-    print("get_param exception:",e.args)
-  prm=Param["path3"]
-  exec(prm["ip"]+"(prm)")
-  sub_path3=rospy.Subscriber("/vrobo/path3",Bool,cb_path3)
-
+  path_exec("path3")
 def cb_path4(msg):
-  global Param,sub_path4
-  sub_path4.unregister()
-  try:
-    Param.update(rospy.get_param("~param"))
-  except Exception as e:
-    print("get_param exception:",e.args)
-  prm=Param["path4"]
-  exec(prm["ip"]+"(prm)")
-  sub_path4=rospy.Subscriber("/vrobo/path4",Bool,cb_path4)
+  path_exec("path4")
+def cb_path5(msg):
+  path_exec("path5")
 
 
 ########################################################
@@ -193,6 +178,7 @@ sub_path1=rospy.Subscriber("/vrobo/path1",Bool,cb_path1)
 sub_path2=rospy.Subscriber("/vrobo/path2",Bool,cb_path2)
 sub_path3=rospy.Subscriber("/vrobo/path3",Bool,cb_path3)
 sub_path4=rospy.Subscriber("/vrobo/path4",Bool,cb_path4)
+sub_path5=rospy.Subscriber("/vrobo/path5",Bool,cb_path5)
 rospy.Subscriber("/vrobo/setbase",Bool,cb_base)
 pub_inpos=rospy.Publisher("/vrobo/inpos",Bool,queue_size=1);
 pub_tf=rospy.Publisher("/update/config_tf",TransformStamped,queue_size=1);

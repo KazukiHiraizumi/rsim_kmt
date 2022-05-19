@@ -7,7 +7,5 @@
   <node pkg="rsim_kmt" type="vrobo.py" name="" output="screen">
     <remap from="~param" to="/vrobo" />
   </node>
-<!--
   <node pkg="rsim_kmt" type="vcam.py" name="" output="screen" />
--->
 </launch>

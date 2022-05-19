@@ -76,6 +76,7 @@ rospy.sleep(2)
 
 while not rospy.is_shutdown():
   showModel('marud',frame='marud',color=(0.8,0.8,0.8))
+  showModel('circle',frame='circle',color=(0.8,0.8,0.8))
   showModel('tatep',color=(0.7,0.7,0.7),x=-100)
   showModel('tatep',color=(0.7,0.7,0.7),x=-500)
   Points_lock=True

@@ -3,18 +3,18 @@ cropper:
   cropR2: 0.08
   cropZ: 0
   ladC: 0
-  ladW: 40000
+  ladW: 0
   ladW2: 30000
-  mesh: 1
-  nfmin: 20
+  mesh: 0
+  nfmin: 0
   nfrad: 5
 picker:
   azimuth:
-    max: 20
+    max: 0
     min: 0
   fitness:
     max: 1
-    min: 0.7
+    min: 0
   rmse:
     max: 5
     min: 0
@@ -45,10 +45,7 @@ rovi:
       Intensity: 255
 searcher:
   cutter:
-    base: 115
-    distance: 400
-    offset: -430
-    width: 10
+    width: 0
   distance_threshold: 10
   feature_mesh: 4
   feature_radius: 18

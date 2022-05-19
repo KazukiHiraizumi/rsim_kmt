@@ -17,11 +17,11 @@ from geometry_msgs.msg import Transform
 from rovi_utils import tflib
 
 Config={
-  "source_frame_id":"bucket",
+  "source_frame_id":"world",
   "target_frame_id":"camera",
   "trim_x":800,
   "trim_y":300,
-  "trim_far":600,
+  "trim_far":1000,
   "trim_near":300,
   "view":[[-200,0,0],[200,0,0]],
   "view_r":50000,
@@ -76,7 +76,9 @@ def cb_capture(msg):
     pset=pset.union(set(pm))
   plst=np.array(list(pset))
   pcd=pcd.select_by_index(plst)
-  pub_ps.publish(np2F(np.array(pcd.points)))
+  pvec=np.array(pcd.points).reshape((-1,3))
+  print("vcam captured",len(pvec))
+  pub_ps.publish(np2F(pvec))
   pub_done.publish(mTrue)
 
 ########################################################
@@ -88,7 +90,7 @@ try:
 except Exception as e:
   print("get_param exception:",e.args)
 ###Topics
-rospy.Subscriber("/rovi/wp_floats",numpy_msg(Floats),cb_ps)
+rospy.Subscriber("/vscene/floats",numpy_msg(Floats),cb_ps)
 rospy.Subscriber("/rovi/X1",Bool,cb_capture)
 pub_ps=rospy.Publisher("/rovi/ps_floats",numpy_msg(Floats),queue_size=1)
 pub_done=rospy.Publisher("/rovi/Y1",Bool,queue_size=1)
