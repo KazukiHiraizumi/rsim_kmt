@@ -51,6 +51,6 @@ roslaunch rsim_ktm start.launch
 |vscene.py|3Dシーンを作成する|
 |vrobo.py|カメラを設定された軌道に従って移動します|
 |vcam.py|点群カメラをシミュレートします|
-|searcher2d.py|2D画像処理|
+|positioner.py|回転対称形の位相合わせを行う。2D,3D双方の処理を行う|
 |????????|軸拘束ICP|
 
