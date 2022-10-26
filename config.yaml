@@ -1,7 +1,5 @@
 config:
   vcam:
-    trim_y: 300
-    trim_x: 400
     frame_id: camera
   prepro:
     capture_frame_id: camera/capture0

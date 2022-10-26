@@ -31,13 +31,23 @@ Param={
     "var":[-45,45],
     "pause":3
   },
+  "path3o":{
+    "ip":"mov_z",
+    "xyz":[0,0,600],
+    "rpy":[0,180,90],
+    "var":[90],
+    "pause":1,
+    "capture":True
+  },
   "path3":{
+    "org":"path3o",
     "ip":"rot_z",
     "xyz":[-100,0,600],
     "rpy":[0,120,0],
     "var":[0,360],
-    "pitch":3.6,
-    "pause":0.1
+    "pitch":36,
+    "pause":1,
+    "capture":True
   },
   "path4":{
     "ip":"rot_z",
@@ -110,6 +120,12 @@ def cb_base(msg):
     print("get_param exception:",e.args)
   setbase(Param["xyz"]+Param["rpy"])
 
+def pause(prm):
+  rospy.sleep(prm['pause'])
+  if 'capture' in prm:
+    rospy.Timer(rospy.Duration(0.1),lambda ev:pub_capt.publish(mTrue),oneshot=True)
+    rospy.wait_for_message('/response/capture',Bool)
+
 def mov_z(prm):
   mov(prm["xyz"]+prm["rpy"])
   rospy.sleep(0.01)
@@ -123,7 +139,7 @@ def mov_z(prm):
     wTcc=rt.dot(wTc)
     euler=R.from_matrix(wTcc[:3,:3]).as_euler('xyz',degrees=True)
     mov([wTcc[0,3],wTcc[1,3],wTcc[2,3],euler[0],euler[1],euler[2]])
-    rospy.sleep(prm["pause"])
+    pause(prm)
   pub_inpos.publish(mTrue)
 
 def rot_z(prm):
@@ -138,7 +154,7 @@ def rot_z(prm):
     wTcc=rt.dot(wTc)
     euler=R.from_matrix(wTcc[:3,:3]).as_euler('xyz',degrees=True)
     mov([wTcc[0,3],wTcc[1,3],wTcc[2,3],euler[0],euler[1],euler[2]])
-    rospy.sleep(prm["pause"])
+    pause(prm)
   pub_inpos.publish(mTrue)
 
 def path_exec(path):
@@ -148,6 +164,10 @@ def path_exec(path):
     Param.update(rospy.get_param("~param"))
   except Exception as e:
     print("get_param exception:",e.args)
+  if 'org' in Param[path]:
+    org=Param[path]['org']
+    prm=Param[org]
+    exec(prm["ip"]+"(prm)")    
   prm=Param[path]
   exec(prm["ip"]+"(prm)")
   exec("global sub_"+path+"; sub_"+path+"=rospy.Subscriber('/vrobo/"+path+"',Bool,cb_"+path+")")
@@ -180,8 +200,9 @@ sub_path3=rospy.Subscriber("/vrobo/path3",Bool,cb_path3)
 sub_path4=rospy.Subscriber("/vrobo/path4",Bool,cb_path4)
 sub_path5=rospy.Subscriber("/vrobo/path5",Bool,cb_path5)
 rospy.Subscriber("/vrobo/setbase",Bool,cb_base)
-pub_inpos=rospy.Publisher("/vrobo/inpos",Bool,queue_size=1);
-pub_tf=rospy.Publisher("/update/config_tf",TransformStamped,queue_size=1);
+pub_inpos=rospy.Publisher("/vrobo/inpos",Bool,queue_size=1)
+pub_tf=rospy.Publisher("/update/config_tf",TransformStamped,queue_size=1)
+pub_capt=rospy.Publisher("/request/capture",Bool,queue_size=1)
 ###TF
 tfBuffer=tf2_ros.Buffer()
 listener=tf2_ros.TransformListener(tfBuffer)
